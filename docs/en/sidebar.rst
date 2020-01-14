@@ -17,6 +17,7 @@
 
        reference/introduction
        reference/architecture
+       reference/console-commands
        reference/basic-mapping
        reference/custom-mapping-types
        reference/reference-mapping
@@ -38,6 +39,7 @@
        reference/aggregation-builder
        reference/geospatial-queries
        reference/find-and-update
+       reference/upserting-documents
        reference/filters
        reference/priming-references
        reference/capped-collections

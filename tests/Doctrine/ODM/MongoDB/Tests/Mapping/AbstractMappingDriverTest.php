@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Mapping\MappingException;
+use Doctrine\ODM\MongoDB\Repository\DefaultGridFSRepository;
 use Doctrine\ODM\MongoDB\Tests\BaseTest;
 use InvalidArgumentException;
 use function key;
@@ -88,7 +89,7 @@ abstract class AbstractMappingDriverTest extends BaseTest
     public function testFieldMappings($class)
     {
         $this->assertCount(14, $class->fieldMappings);
-        $this->assertTrue(isset($class->fieldMappings['id']));
+        $this->assertTrue(isset($class->fieldMappings['identifier']));
         $this->assertTrue(isset($class->fieldMappings['version']));
         $this->assertTrue(isset($class->fieldMappings['lock']));
         $this->assertTrue(isset($class->fieldMappings['name']));
@@ -159,7 +160,7 @@ abstract class AbstractMappingDriverTest extends BaseTest
      */
     public function testIdentifier($class)
     {
-        $this->assertEquals('id', $class->identifier);
+        $this->assertEquals('identifier', $class->identifier);
 
         return $class;
     }
@@ -406,6 +407,7 @@ abstract class AbstractMappingDriverTest extends BaseTest
 
         $this->assertTrue($class->isFile);
         $this->assertSame(12345, $class->getChunkSizeBytes());
+        $this->assertNull($class->customRepositoryClassName);
 
         $this->assertArraySubset([
             'name' => '_id',
@@ -442,6 +444,14 @@ abstract class AbstractMappingDriverTest extends BaseTest
             'embedded' => true,
             'targetDocument' => AbstractMappingDriverFileMetadata::class,
         ], $class->getFieldMapping('metadata'), true);
+    }
+
+    public function testGridFSMappingWithCustomRepository()
+    {
+        $class = $this->loadMetadata(AbstractMappingDriverFileWithCustomRepository::class);
+
+        $this->assertTrue($class->isFile);
+        $this->assertSame(AbstractMappingDriverGridFSRepository::class, $class->customRepositoryClassName);
     }
 
     public function testDuplicateDatabaseNameInMappingCauseErrors()
@@ -491,7 +501,7 @@ abstract class AbstractMappingDriverTest extends BaseTest
 class AbstractMappingDriverUser
 {
     /** @ODM\Id */
-    public $id;
+    public $identifier;
 
     /**
      * @ODM\Version
@@ -718,6 +728,19 @@ class AbstractMappingDriverFileMetadata
 {
     /** @ODM\Field */
     public $contentType;
+}
+
+/**
+ * @ODM\File(repositoryClass=AbstractMappingDriverGridFSRepository::class)
+ */
+class AbstractMappingDriverFileWithCustomRepository
+{
+    /** @ODM\Id */
+    public $id;
+}
+
+class AbstractMappingDriverGridFSRepository extends DefaultGridFSRepository
+{
 }
 
 /** @ODM\MappedSuperclass */
