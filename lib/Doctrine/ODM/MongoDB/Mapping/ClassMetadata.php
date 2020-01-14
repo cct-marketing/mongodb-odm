@@ -2047,6 +2047,10 @@ class ClassMetadata implements BaseClassMetadata
             $serialized[] = 'isReadOnly';
         }
 
+        if ($this->alsoLoadMethods) {
+            $serialized[] = 'alsoLoadMethods';
+        }
+
         return $serialized;
     }
 
